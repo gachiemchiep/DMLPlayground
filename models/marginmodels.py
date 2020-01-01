@@ -222,8 +222,8 @@ class MarginLoss(gluon.loss.Loss):
         d_ap = F.sqrt(F.sum(F.square(positives - anchors), axis=1) + 1e-8)
         d_an = F.sqrt(F.sum(F.square(negatives - anchors), axis=1) + 1e-8)
 
-        pos_loss = F.maximum(d_ap - beta + self._margin, 0.0)
-        neg_loss = F.maximum(beta - d_an + self._margin, 0.0)
+        pos_loss = F.maximum(F.broadcast_sub(d_ap, beta) + self._margin, 0.0)
+        neg_loss = F.maximum(F.broadcast_sub(beta, d_an) + self._margin, 0.0)
 
         pair_cnt = F.sum((pos_loss > 0.0) + (neg_loss > 0.0))
         pair_cnt = F.maximum(pair_cnt, 1)  # Avoid division by zero
